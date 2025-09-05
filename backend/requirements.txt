@@ -20,3 +20,6 @@ pydantic==2.5.0
 # For additional mesh processing
 open3d==0.18.0
 pymeshlab==2022.2.post4
+
+# For S3 storage support (optional)
+boto3==1.34.0

@@ -14,6 +14,11 @@ interface QuotePanelProps {
   cartItems?: any[];
   onAddFiles?: (files: File[]) => void;
   isProcessing?: boolean;
+  uploadError?: string | null;
+  onClearUploadError?: () => void;
+  duplicateNotification?: string | null;
+  onClearDuplicateNotification?: () => void;
+  onRemoveFromCart?: (filename: string) => void;
 }
 
 interface ProcessOption {
@@ -44,7 +49,7 @@ const materials: Material[] = [
   { id: 'petg-clear', name: 'PETG Clear', description: 'Chemical resistant', color: '#E0E0E0' },
 ];
 
-export default function QuotePanel({ file, modelData, analysisData, onGoBack, showOnlyCart = false, showOnlyQuote = false, onCartItemSelect, cartItems = [], onAddFiles, isProcessing = false }: QuotePanelProps) {
+export default function QuotePanel({ file, modelData, analysisData, onGoBack, showOnlyCart = false, showOnlyQuote = false, onCartItemSelect, cartItems = [], onAddFiles, isProcessing = false, uploadError, onClearUploadError, duplicateNotification, onClearDuplicateNotification, onRemoveFromCart }: QuotePanelProps) {
   const [selectedCartItem, setSelectedCartItem] = useState<number>(0);
   const [selectedProcess, setSelectedProcess] = useState<string>('fdm');
   const [selectedMaterial, setSelectedMaterial] = useState<string>('abs-white');
@@ -141,6 +146,64 @@ export default function QuotePanel({ file, modelData, analysisData, onGoBack, sh
           </button>
         </div>
         
+        {/* Duplicate Notification Display */}
+        {duplicateNotification && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-2">
+                <h4 className="text-xs font-medium text-blue-800">File Already Exists</h4>
+                <div className="mt-1 text-xs text-blue-700 whitespace-pre-line">
+                  {duplicateNotification}
+                </div>
+                {onClearDuplicateNotification && (
+                  <div className="mt-2">
+                    <button
+                      onClick={onClearDuplicateNotification}
+                      className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Upload Error Display */}
+        {uploadError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-4 w-4 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-2">
+                <h4 className="text-xs font-medium text-red-800">Upload Error</h4>
+                <div className="mt-1 text-xs text-red-700 whitespace-pre-line">
+                  {uploadError}
+                </div>
+                {onClearUploadError && (
+                  <div className="mt-2">
+                    <button
+                      onClick={onClearUploadError}
+                      className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Cart Items */}
         <div className="space-y-2 mb-4">
           {cartItems.map((item, index) => {
@@ -161,7 +224,15 @@ export default function QuotePanel({ file, modelData, analysisData, onGoBack, sh
                       <div className="text-xs text-gray-500">Not Specified</div>
                     </div>
                   </div>
-                  <button className="text-blue-600 text-xs">Remove</button>
+                  <button 
+                    className="text-blue-600 text-xs hover:text-blue-800"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveFromCart?.(item.name);
+                    }}
+                  >
+                    Remove
+                  </button>
                 </div>
                 <div className="text-xs text-gray-600 ml-13">
                   <div className="font-medium">{item.name.replace(/\.[^/.]+$/, "")}</div>

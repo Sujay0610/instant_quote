@@ -6,9 +6,10 @@ import { Upload, FileText, AlertCircle } from 'lucide-react';
 
 interface FileUploadProps {
   onFileUpload: (files: File[], apiResponse?: any) => void;
+  sessionId?: string;
 }
 
-export default function FileUpload({ onFileUpload }: FileUploadProps) {
+export default function FileUpload({ onFileUpload, sessionId }: FileUploadProps) {
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -22,7 +23,12 @@ export default function FileUpload({ onFileUpload }: FileUploadProps) {
         const formData = new FormData();
         formData.append('file', file);
         
-        const response = await fetch('http://localhost:8000/upload', {
+        // Add session ID if provided
+        const url = sessionId 
+          ? `http://localhost:8000/upload?session_id=${encodeURIComponent(sessionId)}`
+          : 'http://localhost:8000/upload';
+        
+        const response = await fetch(url, {
           method: 'POST',
           body: formData,
         });
